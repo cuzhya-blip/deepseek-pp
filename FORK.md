@@ -42,6 +42,24 @@
 
 相关文件：`core/i18n/resources/{zh-CN,en}/prompt.ts`、`tests/prompt-memory-forget.test.ts`。
 
+### fix(compat): 适配 DeepSeek 2026-10 虚拟列表消息结构
+
+DeepSeek 新版把消息区从 `.ds-message` 列表换成了虚拟列表：
+
+```text
+.ds-virtual-list > .ds-virtual-list-items > .ds-virtual-list-visible-items > 消息项（无稳定 class）
+```
+
+适配方式：content script 启动一个轻量 DOM capability，每 400ms 给可见消息项补 `.ds-message` 标记，
+现有消息锚点、工具块、恢复渲染逻辑无需改动。
+
+相关文件：`entrypoints/content/adapters/deepseek-message-tagging.ts`、`tests/deepseek-message-tagging.test.ts`。
+
+已验证未变：`/api/v0/chat/*` 端点、`prompt` / `chat_session_id` / `thinking_enabled` / `search_enabled`
+请求字段、`/a/chat/s/` 历史链接、`textarea` 与 `ds-button`。
+
+已知限制：虚拟列表只渲染视口附近的消息，DOM 遍历只覆盖可见项。
+
 ### 分组注入示例
 
 ```text
