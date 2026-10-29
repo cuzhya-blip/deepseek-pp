@@ -478,7 +478,11 @@ export const sidepanel = {
   promptControls: {
     title: '提示词控制',
     memory: '记忆注入',
-    memoryDescription: '在新请求中加入筛选后的长期记忆',
+    memoryDescription: '在新请求中加入长期记忆',
+    memoryMode: '注入模式',
+    memoryModeDescription: '全量：不筛选，按项目/全局分组全部注入；筛选：只注入关键词相关的记忆',
+    memoryModeFull: '全量（推荐）',
+    memoryModeFiltered: '按相关性筛选',
     systemPrompt: 'DeepSeek++ 系统提示词',
     systemPromptDescription: '注入工具 schema、记忆规则和运行时指引',
     presetCadence: '预设注入频率',

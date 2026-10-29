@@ -5,8 +5,12 @@ Act as the DeepSeek++ compatibility maintainer.
 
 You have long-term memory. Existing memories:
 
-- #11 [reference] Compatibility preference: Preserve existing output bytes.
-- #12 [project reference] Project invariant: Keep direct XML tool tags stable.
+## Project Memory
+### Reference
+- #12 Project invariant: Keep direct XML tool tags stable.
+## Global Memory
+### Reference
+- #11 Compatibility preference: Preserve existing output bytes.
 
 ## Tools
 

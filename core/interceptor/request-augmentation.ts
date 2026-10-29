@@ -253,6 +253,7 @@ export function augmentDecodedRequestBody(
         toolDescriptors: modelFacingToolDescriptors,
         locale,
         memoryEnabled: promptSettings.memoryEnabled,
+        memoryInjectionMode: promptSettings.memoryInjectionMode,
         systemPromptEnabled: promptSettings.systemPromptEnabled,
         forceResponseLanguage,
       });
@@ -270,6 +271,7 @@ export function augmentDecodedRequestBody(
         toolDescriptors: modelFacingToolDescriptors,
         locale,
         memoryEnabled: promptSettings.memoryEnabled,
+        memoryInjectionMode: promptSettings.memoryInjectionMode,
         systemPromptEnabled: promptSettings.systemPromptEnabled,
         forceResponseLanguage,
       });
@@ -295,6 +297,7 @@ export function augmentDecodedRequestBody(
     toolDescriptors: modelFacingToolDescriptors,
     locale,
     memoryEnabled: promptSettings.memoryEnabled,
+    memoryInjectionMode: promptSettings.memoryInjectionMode,
     systemPromptEnabled: promptSettings.systemPromptEnabled,
     forceResponseLanguage,
   });

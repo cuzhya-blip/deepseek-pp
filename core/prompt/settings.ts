@@ -3,9 +3,15 @@ import { isSupportedLocale, type SupportedLocale } from '../i18n/background';
 
 export type PromptPresetCadence = 'default' | 'first_message' | 'every_message' | 'off';
 export type ForcedResponseLanguage = 'auto' | SupportedLocale;
+/**
+ * filtered: 按关键词/预算筛选后注入（上游默认行为）
+ * full: 不做相关性筛选，按项目/全局 + 类型分组全量注入（本 fork 默认）
+ */
+export type MemoryInjectionMode = 'filtered' | 'full';
 
 export interface PromptInjectionSettings {
   memoryEnabled: boolean;
+  memoryInjectionMode: MemoryInjectionMode;
   systemPromptEnabled: boolean;
   presetCadence: PromptPresetCadence;
   forceResponseLanguage: ForcedResponseLanguage;
@@ -13,6 +19,7 @@ export interface PromptInjectionSettings {
 
 export const DEFAULT_PROMPT_INJECTION_SETTINGS: PromptInjectionSettings = {
   memoryEnabled: true,
+  memoryInjectionMode: 'full',
   systemPromptEnabled: true,
   presetCadence: 'default',
   forceResponseLanguage: 'auto',
@@ -40,6 +47,7 @@ export function normalizePromptInjectionSettings(value: unknown): PromptInjectio
     : {};
   return {
     memoryEnabled: object.memoryEnabled !== false,
+    memoryInjectionMode: normalizeMemoryInjectionMode(object.memoryInjectionMode),
     systemPromptEnabled: object.systemPromptEnabled !== false,
     presetCadence: normalizePresetCadence(object.presetCadence),
     forceResponseLanguage: normalizeForcedLanguage(object.forceResponseLanguage),
@@ -64,6 +72,12 @@ export function shouldInjectPresetForTurn(input: {
     default:
       return input.isFirstMessage || input.messageCount % PRESET_REINJECTION_INTERVAL === 0;
   }
+}
+
+function normalizeMemoryInjectionMode(value: unknown): MemoryInjectionMode {
+  return value === 'filtered' || value === 'full'
+    ? value
+    : DEFAULT_PROMPT_INJECTION_SETTINGS.memoryInjectionMode;
 }
 
 function normalizePresetCadence(value: unknown): PromptPresetCadence {
