@@ -32,6 +32,16 @@
 | `entrypoints/sidepanel/components/PromptControlPanel.tsx` | 设置 UI |
 | `tests/memory-injection-mode.test.ts` | 5 项单测 |
 
+### feat: 对话内「遗忘」语义
+
+系统提示词（chat + thinking，中英双语）新增「记忆删除规则」：
+
+1. 用户说「忘掉 / 删除 / 不要再提」某条记忆时，先按名称或 `#id` 定位；
+2. 调用 `memory_delete` 删除；
+3. 明确告知删掉了哪一条；找不到匹配就直说，不假装删除。
+
+相关文件：`core/i18n/resources/{zh-CN,en}/prompt.ts`、`tests/prompt-memory-forget.test.ts`。
+
 ### 分组注入示例
 
 ```text
