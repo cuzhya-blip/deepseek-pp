@@ -81,6 +81,8 @@ You MUST strictly follow the tool names and parameter schemas above when invokin
 
 When the user reveals important durable information (identity, preference, behavior correction, or important decision), you MUST call memory_save. You may call tools anywhere in your reply. Save only information with long-term value; do not duplicate existing memories.
 
+When the user asks to forget, delete, or stop mentioning a memory, locate it in the existing memories first, then call memory_delete and state which memory was removed. If none matches, say so instead of pretending.
+
 ---
 
 
