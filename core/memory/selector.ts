@@ -1,4 +1,4 @@
-import type { Memory } from '../types';
+import type { Memory, MemoryScope, MemoryType } from '../types';
 import { MEMORY_TOKEN_BUDGET, STOP_WORDS } from '../constants';
 import { DEFAULT_LOCALE, translate, type SupportedLocale } from '../i18n/background';
 import { estimateTokens } from '../token/estimator';
@@ -137,4 +137,86 @@ export function formatMemoriesBlock(
 ): string {
   if (memories.length === 0) return translate(locale, 'prompt.memoryEmpty');
   return memories.map(formatMemoryLine).join('\n');
+}
+
+/** full 模式的硬上限：只防上下文被撑爆，不做相关性筛选。 */
+export const FULL_MEMORY_TOKEN_BUDGET = 48_000;
+
+const MEMORY_TYPE_ORDER: readonly MemoryType[] = ['user', 'feedback', 'topic', 'reference'];
+
+/**
+ * 全量模式：不按关键词打分、不按预算筛掉“不相关”的记忆，
+ * 只做「置顶优先 → 项目先于全局 → 类型固定顺序 → 最近更新」的稳定排序。
+ * 仅在超过硬上限（默认 48K token）时截断，避免把上下文窗口塞爆。
+ */
+export function selectAllMemories(
+  allMemories: Memory[],
+  options?: { budget?: number },
+): Memory[] {
+  const budget = options?.budget ?? FULL_MEMORY_TOKEN_BUDGET;
+  const scopeRank = (memory: Memory): number => (memory.scope === 'project' ? 0 : 1);
+  const typeRank = (memory: Memory): number => {
+    const index = MEMORY_TYPE_ORDER.indexOf(memory.type);
+    return index < 0 ? MEMORY_TYPE_ORDER.length : index;
+  };
+
+  const sorted = [...allMemories].sort((a, b) => {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
+    if (scopeRank(a) !== scopeRank(b)) return scopeRank(a) - scopeRank(b);
+    if (typeRank(a) !== typeRank(b)) return typeRank(a) - typeRank(b);
+    return b.updatedAt - a.updatedAt;
+  });
+
+  const selected: Memory[] = [];
+  let remaining = budget;
+  for (const memory of sorted) {
+    const cost = estimateTokens(formatMemoryLine(memory));
+    if (remaining - cost < 0 && selected.length > 0) break;
+    selected.push(memory);
+    remaining -= cost;
+  }
+  return selected;
+}
+
+function formatGroupedLine(memory: Memory): string {
+  const idPrefix = memory.id != null ? `#${memory.id} ` : '';
+  return `- ${idPrefix}${sanitizeContent(memory.name)}: ${sanitizeContent(memory.content)}`;
+}
+
+/**
+ * 全量模式的分组渲染：按「项目 / 全局」分大节，节内按类型分小节。
+ * 目的是让模型能一眼看到记忆的归属和场景，而不是一锅平铺列表。
+ */
+export function formatMemoriesGrouped(
+  memories: Memory[],
+  locale: SupportedLocale = DEFAULT_LOCALE,
+): string {
+  if (memories.length === 0) return translate(locale, 'prompt.memoryEmpty');
+
+  const scopeLabels: Record<MemoryScope, string> = {
+    project: translate(locale, 'prompt.memoryGroupProject'),
+    global: translate(locale, 'prompt.memoryGroupGlobal'),
+  };
+  const typeLabels: Record<MemoryType, string> = {
+    user: translate(locale, 'prompt.memoryTypeUser'),
+    feedback: translate(locale, 'prompt.memoryTypeFeedback'),
+    topic: translate(locale, 'prompt.memoryTypeTopic'),
+    reference: translate(locale, 'prompt.memoryTypeReference'),
+  };
+
+  const scopes: readonly MemoryScope[] = ['project', 'global'];
+  const lines: string[] = [];
+
+  for (const scope of scopes) {
+    const inScope = memories.filter((memory) => memory.scope === scope);
+    if (inScope.length === 0) continue;
+    lines.push(`## ${scopeLabels[scope]}`);
+    for (const type of MEMORY_TYPE_ORDER) {
+      const inType = inScope.filter((memory) => memory.type === type);
+      if (inType.length === 0) continue;
+      lines.push(`### ${typeLabels[type]}`);
+      for (const memory of inType) lines.push(formatGroupedLine(memory));
+    }
+  }
+  return lines.join('\n');
 }

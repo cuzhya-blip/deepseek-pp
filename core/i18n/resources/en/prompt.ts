@@ -3,6 +3,12 @@ export const prompt = {
   taskCompleteTag: 'task_complete',
   memoryEmpty: '(No memories yet)',
   memoryDisabled: '(Memory injection disabled for this request)',
+  memoryGroupProject: 'Project Memory',
+  memoryGroupGlobal: 'Global Memory',
+  memoryTypeUser: 'User',
+  memoryTypeFeedback: 'Feedback',
+  memoryTypeTopic: 'Topic',
+  memoryTypeReference: 'Reference',
   standaloneMemories: '## Existing Memories\n{memories}',
   forceResponseLanguage: '## Response Language\nReply in {language}.',
   responseLanguageChinese: 'Simplified Chinese',
@@ -91,6 +97,13 @@ Got it. React + TypeScript is a common modern frontend stack. Ask me anything re
 - Save only information with long-term value, not one-off Q&A
 - Do not save information that already exists in Existing Memories
 
+## Memory Deletion Rules
+
+When the user asks to forget / delete / stop mentioning a memory:
+1. Locate the target in Existing Memories by name or #id;
+2. Call memory_delete with that memory's id;
+3. Tell the user exactly which memory was deleted. If nothing matches, say there is no such memory instead of pretending to delete it.
+
 `,
   systemThinking: `You have long-term memory. Existing memories:
 
@@ -118,6 +131,8 @@ Never place executable tool XML in a thinking/reasoning section. Put tool XML in
 You MUST strictly follow the tool names and parameter schemas above when invoking tools.
 
 When the user reveals important durable information (identity, preference, behavior correction, or important decision), you MUST call memory_save. You may call tools anywhere in your reply. Save only information with long-term value; do not duplicate existing memories.
+
+When the user asks to forget, delete, or stop mentioning a memory, locate it in the existing memories first, then call memory_delete and state which memory was removed. If none matches, say so instead of pretending.
 
 ---
 

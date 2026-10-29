@@ -3,6 +3,7 @@ import {
   DEFAULT_PROMPT_INJECTION_SETTINGS,
   normalizePromptInjectionSettings,
   type ForcedResponseLanguage,
+  type MemoryInjectionMode,
   type PromptInjectionSettings,
   type PromptPresetCadence,
 } from '../../../core/prompt/settings';
@@ -80,6 +81,24 @@ export default function PromptControlPanel() {
           enabled={settings.memoryEnabled}
           onToggle={(enabled) => save({ memoryEnabled: enabled })}
         />
+
+        <label className="block space-y-1">
+          <span className="text-[11px]" style={{ color: 'var(--ds-text-secondary)' }}>
+            {t('sidepanel.promptControls.memoryMode')}
+          </span>
+          <select
+            value={settings.memoryInjectionMode}
+            onChange={(event) => save({ memoryInjectionMode: event.target.value as MemoryInjectionMode })}
+            className="w-full px-3 py-2 text-xs rounded-lg border outline-none"
+            style={{ background: 'var(--ds-bg)', borderColor: 'var(--ds-border)', color: 'var(--ds-text)' }}
+          >
+            <option value="full">{t('sidepanel.promptControls.memoryModeFull')}</option>
+            <option value="filtered">{t('sidepanel.promptControls.memoryModeFiltered')}</option>
+          </select>
+          <span className="block text-[10px] leading-snug" style={{ color: 'var(--ds-text-secondary)' }}>
+            {t('sidepanel.promptControls.memoryModeDescription')}
+          </span>
+        </label>
         <ToggleRow
           title={t('sidepanel.promptControls.systemPrompt')}
           description={t('sidepanel.promptControls.systemPromptDescription')}

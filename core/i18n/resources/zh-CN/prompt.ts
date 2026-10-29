@@ -3,6 +3,12 @@ export const prompt = {
   taskCompleteTag: 'task_complete',
   memoryEmpty: '(暂无记忆)',
   memoryDisabled: '(本次请求已关闭记忆注入)',
+  memoryGroupProject: '项目记忆',
+  memoryGroupGlobal: '全局记忆',
+  memoryTypeUser: '身份',
+  memoryTypeFeedback: '反馈',
+  memoryTypeTopic: '话题',
+  memoryTypeReference: '资料',
   standaloneMemories: '## 已有记忆\n{memories}',
   forceResponseLanguage: '## 回复语言\n请使用{language}回复。',
   responseLanguageChinese: '简体中文',
@@ -91,6 +97,13 @@ You MUST strictly follow the above defined tool name and parameter schemas to in
 - 仅保存长期有价值的信息，不保存一次性的问答内容
 - 不要重复保存"已有记忆"中已存在的信息
 
+## 记忆删除规则
+
+当用户要求「忘掉 / 删除 / 不要再提」某条记忆时：
+1. 先在「已有记忆」中按名称或 #id 定位目标；
+2. 调用 memory_delete 删除，参数用该条记忆的 id；
+3. 明确告诉用户删掉了哪一条；如果找不到匹配，就直接说没有这条记忆，不要假装删除。
+
 `,
   systemThinking: `你具有长期记忆能力。已有记忆：
 
@@ -118,6 +131,8 @@ Never place executable tool XML in a thinking/reasoning section. Put tool XML in
 You MUST strictly follow the above defined tool name and parameter schemas to invoke tool calls.
 
 当用户透露重要的持久信息（身份、偏好、行为纠正、重要决策）时，你**必须**调用 memory_save 工具保存。你可以在回复中的任何位置调用工具。仅保存长期有价值的信息；不要重复保存已有记忆。
+
+当用户要求忘掉、删除或不要再提某条记忆时，先在已有记忆中定位，再调用 memory_delete 删除，并说明删掉了哪一条；找不到就直说没有这条记忆，不要假装删除。
 
 ---
 

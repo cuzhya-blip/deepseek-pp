@@ -478,7 +478,11 @@ export const sidepanel = {
   promptControls: {
     title: 'Prompt controls',
     memory: 'Memory injection',
-    memoryDescription: 'Include selected long-term memories in new requests',
+    memoryDescription: 'Include long-term memories in new requests',
+    memoryMode: 'Injection mode',
+    memoryModeDescription: 'Full: inject every memory, grouped by project/global; Filtered: only keyword-relevant memories',
+    memoryModeFull: 'Full (recommended)',
+    memoryModeFiltered: 'Relevance-filtered',
     systemPrompt: 'DeepSeek++ system prompt',
     systemPromptDescription: 'Include tool schemas, memory rules, and runtime guidance',
     presetCadence: 'Preset cadence',

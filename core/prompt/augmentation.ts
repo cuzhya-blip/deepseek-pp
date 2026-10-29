@@ -9,7 +9,8 @@ import {
   getToolInvocationNames,
   type ToolInvocationCatalog,
 } from '../tool';
-import { estimateTokens, formatMemoriesBlock, getMemoryBudget, selectMemories } from '../memory/selector';
+import { estimateTokens, formatMemoriesBlock, formatMemoriesGrouped, getMemoryBudget, selectAllMemories, selectMemories } from '../memory/selector';
+import type { MemoryInjectionMode } from './settings';
 import { markVisibleUserPrompt, markVisibleUserPromptMetadata } from './visibility';
 
 export interface PromptAugmentationOptions {
@@ -26,6 +27,7 @@ export interface PromptAugmentationOptions {
   toolDescriptors?: readonly ToolDescriptor[];
   locale?: SupportedLocale;
   memoryEnabled?: boolean;
+  memoryInjectionMode?: MemoryInjectionMode;
   systemPromptEnabled?: boolean;
   forceResponseLanguage?: SupportedLocale | null;
 }
@@ -49,6 +51,7 @@ export function buildPromptAugmentation(
     projectContext = null,
     locale = DEFAULT_LOCALE,
     memoryEnabled = true,
+    memoryInjectionMode = 'filtered',
     systemPromptEnabled = true,
     forceResponseLanguage = null,
   } = options ?? {};
@@ -59,11 +62,16 @@ export function buildPromptAugmentation(
 
   const promptTokens = estimateTokens(originalPrompt);
   const budget = getMemoryBudget(promptTokens);
+  const useFullInjection = memoryInjectionMode === 'full' && !identityOnly;
   const selected = memoryEnabled
-    ? selectMemories(originalPrompt, [...memories], { budget, identityOnly })
+    ? (useFullInjection
+      ? selectAllMemories([...memories])
+      : selectMemories(originalPrompt, [...memories], { budget, identityOnly }))
     : [];
   const memBlock = memoryEnabled
-    ? formatMemoriesBlock(selected, locale)
+    ? (useFullInjection
+      ? formatMemoriesGrouped(selected, locale)
+      : formatMemoriesBlock(selected, locale))
     : translate(locale, 'prompt.memoryDisabled');
   const toolsBlock = systemPromptEnabled ? renderToolSchemas(toolDescriptors, locale) : '';
   const baseSystem = systemPromptEnabled

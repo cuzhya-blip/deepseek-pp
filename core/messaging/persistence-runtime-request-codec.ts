@@ -188,6 +188,13 @@ export const PERSISTENCE_RUNTIME_PAYLOAD_DECODERS: PersistenceRuntimePayloadDeco
       payload.memoryEnabled,
       'SAVE_PROMPT_INJECTION_SETTINGS.payload.memoryEnabled',
     );
+    if (payload.memoryInjectionMode !== undefined) {
+      enumValue(
+        payload.memoryInjectionMode,
+        ['filtered', 'full'],
+        'SAVE_PROMPT_INJECTION_SETTINGS.payload.memoryInjectionMode',
+      );
+    }
     optionalBoolean(
       payload.systemPromptEnabled,
       'SAVE_PROMPT_INJECTION_SETTINGS.payload.systemPromptEnabled',

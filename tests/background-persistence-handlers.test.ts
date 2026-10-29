@@ -340,6 +340,7 @@ describe('Skill and library handlers', () => {
       payload: { memoryEnabled: false },
     })).resolves.toEqual({
       memoryEnabled: false,
+      memoryInjectionMode: 'full',
       systemPromptEnabled: true,
       presetCadence: 'default',
       forceResponseLanguage: 'auto',
@@ -521,12 +522,14 @@ function createLibraryDependencies(): LibraryRuntimeHandlerDependencies {
     getActivePreset: vi.fn(async () => preset),
     getPromptInjectionSettings: vi.fn(async () => ({
       memoryEnabled: true,
+      memoryInjectionMode: 'full' as const,
       systemPromptEnabled: true,
       presetCadence: 'default' as const,
       forceResponseLanguage: 'auto' as const,
     })),
     savePromptInjectionSettings: vi.fn(async (settings) => ({
       memoryEnabled: settings.memoryEnabled !== false,
+      memoryInjectionMode: settings.memoryInjectionMode ?? ('full' as const),
       systemPromptEnabled: settings.systemPromptEnabled !== false,
       presetCadence: settings.presetCadence ?? ('default' as const),
       forceResponseLanguage: settings.forceResponseLanguage ?? ('auto' as const),
