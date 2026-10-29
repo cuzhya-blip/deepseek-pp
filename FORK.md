@@ -75,6 +75,6 @@ npm run prompt:freeze:update   # 改 prompt 后更新 golden
 ## 维护约定
 
 - `main` 保持与上游 v1.14.0 一致；功能改动走分支，自测通过后合并。
-- 上游已归档，`upstream` remote 只作对照，不再拉取。
+- 上游已归档（只读）：`upstream` remote 仅作对照，不再拉取；其 push URL 已设为 `no_push`（`git remote set-url --push upstream no_push`），误操作推送会直接失败。所有提交只推到 `origin`（cuzhya-blip）。
 - 不提交 `dist/`、`node_modules/`、`.wxt/`。
 - prompt 相关改动必须同步更新 golden，并跑 `prompt-output-contract`。
