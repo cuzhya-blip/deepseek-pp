@@ -31,6 +31,10 @@ import {
 } from "../core/prompt/settings";
 import { normalizeBackgroundConfig } from "../core/background/config";
 import {
+  tagDeepSeekMessageItems,
+  untagDeepSeekMessageItems,
+} from "./content/adapters/deepseek-message-tagging";
+import {
   buildBackgroundStyleSheet,
   computeBackgroundTokens,
 } from "../core/background/styles";
@@ -858,6 +862,7 @@ function createContentCapabilityControllers(): readonly ContentCapabilityControl
     // Start transport before DOM capabilities; chat ingress starts last so reverse
     // teardown gates new dispatch before aborting work and closing authorizations.
     bridgeController,
+    createDomCapability("message-tagging", startMessageTaggingCapability, stopMessageTaggingCapability),
     createDomCapability("theme", startThemeCapability, stopThemeCapability),
     createDomCapability(
       "mutation-hub",
@@ -1000,6 +1005,22 @@ function isInlineAgentEpochActive(
     inlineAgentCapabilityEpoch === epoch &&
     scope.active
   );
+}
+
+let messageTaggingTimer: number | null = null;
+
+function startMessageTaggingCapability(): void {
+  tagDeepSeekMessageItems();
+  if (messageTaggingTimer !== null) return;
+  messageTaggingTimer = window.setInterval(() => tagDeepSeekMessageItems(), 400);
+}
+
+function stopMessageTaggingCapability(): void {
+  if (messageTaggingTimer !== null) {
+    window.clearInterval(messageTaggingTimer);
+    messageTaggingTimer = null;
+  }
+  untagDeepSeekMessageItems();
 }
 
 function startThemeCapability(): void {
